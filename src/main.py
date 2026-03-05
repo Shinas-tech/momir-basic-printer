@@ -4,12 +4,17 @@ from printer import Printer
 from scryfall import Scryfall
 import logging
 import readline
-logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.DEBUG)
 config = configparser.ConfigParser()
 config.read(Path(__file__).resolve().with_name('config.ini'))
-printer = Printer(config['PRINTER'])
-scryfall = Scryfall(config['SCRYFALL'])
+filesystem_config = config['FILESYSTEM']
+logging_config = config['LOGGING']
+printer_config = config['PRINTER']
+scryfall_config = config['SCRYFALL']
+printer = Printer(printer_config, filesystem_config, logging_config)
+scryfall = Scryfall(scryfall_config, filesystem_config, logging_config)
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging_config.get('log_level').upper(),
+                    format=logging_config.get('log_format'))
 
 
 def settings_loop():

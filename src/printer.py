@@ -7,16 +7,19 @@ from escpos.printer import Network
 import logging
 logger = logging.getLogger(__name__)
 
-
 class Printer:
-    def __init__(self, config):
-        self.paper_width_mm = config.getint('paper_width_mm')
-        self.paper_width_chars = config.getint('paper_width_chars')
-        self.dpi = config.getint('dpi')
-        self.vendor_id = int(config.get('vendor_id'), 0)
-        self.product_id = int(config.get('product_id'), 0)
-        self.cards_path = Path(sys.argv[0]).resolve().parent.parent / config.get('cards_path')
-        self.art_path = config.get('art_path')
+    def __init__(self, printer_config, filesystem_config, logging_config):
+        self.paper_width_mm = printer_config.getint('paper_width_mm')
+        self.paper_width_chars = printer_config.getint('paper_width_chars')
+        self.dpi = printer_config.getint('dpi')
+        self.vendor_id = int(printer_config.get('vendor_id'), 0)
+        self.product_id = int(printer_config.get('product_id'), 0)
+        self.cards_path = Path(sys.argv[0]).resolve().parent.parent / filesystem_config.get('cards_path')
+        self.art_path = Path(sys.argv[0]).resolve().parent.parent / filesystem_config.get('art_path')
+        self.default_card_art_path = Path(sys.argv[0]).resolve().parent.parent / filesystem_config.get('default_card_art_path')
+        self.access_rights = int(filesystem_config.get('access_rights'), 0)
+        logging.basicConfig(level=logging_config.get('log_level').upper(),
+                            format=logging_config.get('log_format'))
 
     def clean_text(self, text):
         return (text.replace('—', '-')
@@ -28,7 +31,7 @@ class Printer:
     def print_card(self, card):
         card_name = self.clean_text(card["name"])
         card_mana_cost = card["mana_cost"]
-        card_art_path = os.path.join(self.cards_path, str(int(card["cmc"])), self.art_path, f"{card['id']}.jpg")
+        card_art_path = os.path.join(self.art_path, f"{card['id']}.jpg")
         card_type_line = self.clean_text(card["type_line"])
         card_rarity = card["rarity"].capitalize()
         card_oracle_text = self.clean_text(card["oracle_text"])
