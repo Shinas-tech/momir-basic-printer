@@ -1,8 +1,10 @@
-import json
 from pathlib import Path
 from io import BytesIO
 from time import sleep
 from PIL import Image
+import ijson
+import json
+import gzip
 import os
 import shutil
 import sys
@@ -18,9 +20,11 @@ class Scryfall:
         self.bulk_data_endpoint = scryfall_config.get('bulk_data_endpoint')
         self.header_accept = scryfall_config.get('header_accept')
         self.header_user_agent = scryfall_config.get('header_user_agent')
+        self.header_accept_encoding = scryfall_config.get('header_accept_encoding')
         self.request_delay_seconds = scryfall_config.getfloat('request_delay_seconds')
         self.max_retries = scryfall_config.getint('max_retries')
         self.art_width_px = scryfall_config.getint('art_width_px')
+        self.excluded_sets = [set.strip() for set in scryfall_config.get('excluded_sets').replace('\n', '').split(',')]
         self.excluded_layouts = [layout.strip() for layout in scryfall_config.get('excluded_layouts').replace('\n', '').split(',')]
         self.cards_path = Path(sys.argv[0]).resolve().parent.parent / filesystem_config.get('cards_path')
         self.art_path = Path(sys.argv[0]).resolve().parent.parent / filesystem_config.get('art_path')
@@ -28,6 +32,14 @@ class Scryfall:
         self.access_rights = int(filesystem_config.get('access_rights'), 0)
         logging.basicConfig(level=logging_config.get('log_level').upper(),
                             format=logging_config.get('log_format'))
+
+    def get_valid_cmcs(self):
+        logger.debug(f"Getting valid CMCs...")
+        valid_cmcs = []
+        cmc_dirs = [int(d.name) for d in Path(self.cards_path).iterdir() if d.is_dir() and d.name.isdigit()]
+        valid_cmcs = sorted(cmc_dirs)
+        logger.debug(f"Valid CMCs: {valid_cmcs}")
+        return valid_cmcs
 
     def get_total_card_count(self):
         logger.debug(f"Counting all cards...")
@@ -67,6 +79,23 @@ class Scryfall:
             logger.debug(f"Fetched random card with CMC: {cmc} - {random_card['name']}.")
             return random_card
 
+    def is_valid_momir_basic_card(self, card):
+        if card.get('layout') in self.excluded_layouts:
+            return False
+
+        if card.get('set_type') in self.excluded_sets:
+            return False
+
+        if 'paper' not in card.get('games', []):
+            return False
+
+        if 'card_faces' in card:
+            front_type = card['card_faces'][0].get('type_line', '').lower()
+            return 'creature' in front_type
+        else:
+            type_line = card.get('type_line', '').lower()
+            return 'creature' in type_line
+
     def download_bulk_metadata(self):
         headers = {
             'Accept': self.header_accept,
@@ -84,19 +113,29 @@ class Scryfall:
     def download_bulk_creature_data(self):
         headers = {
             'Accept': self.header_accept,
-            'User-Agent': self.header_user_agent
+            'User-Agent': self.header_user_agent,
+            'Accept-Encoding': self.header_accept_encoding
         }
         bulk_metadata = self.download_bulk_metadata()
-        logger.debug(f"Fetching bulk data...")
-        response = requests.get(bulk_metadata['download_uri'], headers=headers)
-        if response.status_code == 200:
-            logger.debug(f"Fetched bulk data. Filtering for creatures...")
-            creature_bulk_data = [card for card in response.json() if 'creature' in card['type_line'].lower() and card['layout'] not in self.excluded_layouts]
-            logger.debug(f"Filtered bulk data for creatures.")
-            return creature_bulk_data
-        else:
-            logger.error(f"Error fetching bulk data: {response.status_code}")
-            raise Exception(f"Error fetching bulk data: {response.status_code}")
+        download_uri = bulk_metadata['download_uri']
+        logger.info(f"Streaming bulk data from Scryfall...")
+        creature_bulk_data = []
+        total_processed = 0
+        with requests.get(download_uri, headers=headers, stream=True) as response:
+            if response.status_code == 200:
+                with gzip.GzipFile(fileobj=response.raw) as unzipped_stream:
+                    parser = ijson.items(unzipped_stream, 'item', use_float=True)
+                    for card in parser:
+                        total_processed += 1
+                        if self.is_valid_momir_basic_card(card):
+                            creature_bulk_data.append(card)
+                        if total_processed % 1000 == 0:
+                            logger.info(f"Processed {total_processed} cards. Found {len(creature_bulk_data)} creatures so far.")
+                logger.info(f"Finished streaming {total_processed} cards. Found {len(creature_bulk_data)} valid creatures.")
+                return creature_bulk_data
+            else:
+                logger.error(f"Error fetching bulk data: {response.status_code}")
+                raise Exception(f"Error fetching bulk data: {response.status_code}")
 
     def filter_bulk_data_by_cmc(self, bulk_data, cmc):
         logger.debug(f"Filtering bulk data for CMC: {cmc}...")
@@ -110,7 +149,7 @@ class Scryfall:
             shutil.rmtree(path, ignore_errors=True)
             logger.debug(f"Deleted {path} directory.")
         else:
-            logger.warning(f"Directory {path} does not exist.")
+            logger.debug(f"Directory {path} does not exist.")
             return
 
     def create_directory(self, path):
@@ -120,7 +159,7 @@ class Scryfall:
             os.makedirs(path, mode=self.access_rights)
             logger.debug(f"Created {path} directory.")
         else:
-            logger.warning(f"Directory {path} already exists.")
+            logger.debug(f"Directory {path} already exists.")
 
     def save_card(self, path, card):
         logger.debug(f"Saving {path}...")
@@ -149,31 +188,50 @@ class Scryfall:
             logger.warning(f"Error downloading {card_art_uri}: {response.status_code}. Max retries reached. Using default art.")
             shutil.copy(self.default_card_art_path, path)
 
-    def generate_metadata(self):
-        # TODO: Implement
-        pass
+    def generate_metadata(self, bulk_metadata):
+        metadata_path = os.path.join(self.cards_path, "metadata.json")
+        metadata = {
+            'updated_at': bulk_metadata.get('updated_at'),
+            'download_uri': bulk_metadata.get('download_uri'),
+            'total_card_count': self.get_total_card_count(),
+            'cmc_card_count': {str(cmc): self.get_card_count_by_cmc(cmc) for cmc in self.get_valid_cmcs()}
+        }
+        with open(metadata_path, 'w') as f:
+            json.dump(metadata, f)
+        logger.debug(f"Generated metadata at {metadata_path}.")
+
+    def process_and_save_card(self, card):
+        cmc = int(card.get('cmc', 0))
+        card_cmc_path = os.path.join(self.cards_path, str(cmc))
+        if not os.path.exists(card_cmc_path):
+            os.makedirs(card_cmc_path, mode=self.access_rights)
+        card_path = os.path.join(card_cmc_path, f"{card['id']}.json")
+        self.save_card(card_path, card)
+        card_art_uri = (card.get('card_faces', [{}])[0].get('image_uris', {}).get('art_crop') 
+                        or card.get('image_uris', {}).get('art_crop'))
+        if card_art_uri:
+            art_path = os.path.join(self.art_path, f"{card['id']}.jpg")
+            self.save_card_art(art_path, card_art_uri, 0)
 
     def refresh_card_data(self):
         self.delete_directory(self.cards_path)
         self.create_directory(self.cards_path)
         self.delete_directory(self.art_path)
         self.create_directory(self.art_path)
-        bulk_creature_data = self.download_bulk_creature_data()
-        unique_cmc_values = {int(card['cmc']) for card in bulk_creature_data}
-        for cmc in unique_cmc_values:
-            filtered_bulk_data = self.filter_bulk_data_by_cmc(bulk_creature_data, cmc)
-            card_cmc_path = os.path.join(self.cards_path, str(cmc))
-            self.create_directory(card_cmc_path)
-            for card in filtered_bulk_data:
-                card_path = os.path.join(card_cmc_path, f"{card['id']}.json")
-                self.save_card(card_path, card)
-                card_art_path = os.path.join(self.art_path, f"{card['id']}.jpg")
-                card_art_uri = None
-                if card.get('card_faces') and card['card_faces'][0].get('image_uris'):
-                    card_art_uri = card['card_faces'][0]['image_uris'].get('art_crop')
-                elif card.get('image_uris'):
-                    card_art_uri = card['image_uris'].get('art_crop')
-                if not card_art_uri:
-                    logger.warning(f"No art URI found for card {card['name']} (ID: {card['id']}). Skipping...")
-                    continue
-                self.save_card_art(card_art_path, card_art_uri, 0)
+        headers = {'Accept-Encoding': 'gzip', 'User-Agent': self.header_user_agent}
+        bulk_metadata = self.download_bulk_metadata()
+        total_processed = 0
+        total_creatures = 0
+        logger.info(f"Streaming bulk data from Scryfall...")
+        with requests.get(bulk_metadata['download_uri'], headers=headers, stream=True) as response:
+            with gzip.GzipFile(fileobj=response.raw) as unzipped_stream:
+                parser = ijson.items(unzipped_stream, 'item', use_float=True)
+                for card in parser:
+                    total_processed += 1
+                    if self.is_valid_momir_basic_card(card):
+                        total_creatures += 1
+                        self.process_and_save_card(card)
+                    if total_processed % 1000 == 0:
+                        logger.info(f"Processed {total_processed} cards. Found {total_creatures} valid creatures so far.")
+            logger.info(f"Finished processing {total_processed} cards. Found {total_creatures} valid creatures.")
+        self.generate_metadata(bulk_metadata)
