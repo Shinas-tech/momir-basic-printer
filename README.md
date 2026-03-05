@@ -6,7 +6,10 @@ Momir Basic Printer (MBP) is a set of Python scripts designed to run headless on
 
 - [About](#about)
 - [Hardware](#hardware)
+  - [Components](#components)
+  - [Pinout](#pinout)
 - [Installation](#installation)
+- [Service Management](#service-management)
 - [Momir Basic Rules](#momir-basic-rules)
 - [Disclaimer](#disclaimer)
 
@@ -16,35 +19,63 @@ Downloads card data from the [Scryfall API](https://scryfall.com/docs/api) and p
 
 ## Hardware
 
+### Components
+
 - [Raspberry Pi 3 Model B+](https://www.raspberrypi.com/products/raspberry-pi-3-model-b-plus/)
+- ...
+
+### Pinout
+
+...
 
 ## Installation
 
-1. Install Python 3 and pip on your Raspberry Pi.
-
-```shell
-sudo apt update
-sudo apt install python3 python3-pip
-```
-
-2. Clone this repository and navigate to the project directory.
+1. Clone this repository and navigate to the project directory.
 
 ```shell
 git clone https://github.com/MoritzHayden/momir-basic-printer.git
 cd momir-basic-printer
 ```
 
-3. Install the required Python packages.
+2. Open [src/config.ini](src/config.ini) in a text editor and update the configuration variables to add your specific settings (like printer connection details, GPIO pins, and other hardware settings) before proceeding.
 
 ```shell
-python3 -m pip install -r requirements.txt
+nano src/config.ini
 ```
 
-4. Configure the settings in [config.ini](config.ini) as needed.
-5. Run the main script.
+3. Make the setup script executable and run it. This will automatically install dependencies and configure the systemd background service.
 
 ```shell
-python3 src/main.py
+chmod +x setup.sh
+./setup.sh
+```
+
+_(Note: If you are running a minimal setup and explicitly require the service to run as root, you can bypass the safety check by running `sudo ./setup.sh --allow-root`)_
+
+## Service Management
+
+View live logs and print statements:
+
+```shell
+sudo journalctl -u momir-basic-printer.service -f
+```
+
+Check the current status of the service:
+
+```shell
+sudo systemctl status momir-basic-printer.service
+```
+
+Restart the service (required after making code changes):
+
+```shell
+sudo systemctl restart momir-basic-printer.service
+```
+
+Stop the service:
+
+```shell
+sudo systemctl stop momir-basic-printer.service
 ```
 
 ## Momir Basic Rules
