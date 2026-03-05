@@ -32,50 +32,54 @@ class Printer:
                     .replace('”', '"'))
 
     def print_card(self, card):
-        card_name = self.clean_text(card["name"])
-        card_mana_cost = card["mana_cost"]
-        card_scryfall_uri = card["scryfall_uri"]
-        card_art_path = os.path.join(self.art_path, f"{card['id']}.jpg")
-        card_type_line = self.clean_text(card["type_line"])
-        card_oracle_text = self.clean_text(card["oracle_text"])
-        card_power = card["power"]
-        card_toughness = card["toughness"]
+        card_name = self.clean_text(card.get("name") or "Unknown Card")
+        card_mana_cost = card.get("mana_cost") or ""
+        card_scryfall_uri = card.get("scryfall_uri") or ""
+        card_id = card.get("id")
+        card_art_path = os.path.join(self.art_path, f"{card_id}.jpg") if card_id else None
+        card_type_line = self.clean_text(card.get("type_line") or "")
+        card_oracle_text = self.clean_text(card.get("oracle_text") or "")
+        card_power = card.get("power")
+        card_toughness = card.get("toughness")
 
         logger.debug(f"Printing card: {card_name}...")
         printer = Network("127.0.0.1", port=9100, profile="simple")
-        
+
         # NAME AND MANA COST
         printer.set(align='left', bold=True)
-        title_line_spaces = self.paper_width_chars - (len(card_name) + len(card_mana_cost))
-        title_line_padding = " " * max(1, title_line_spaces)
+        title_line_spaces = max(1, self.paper_width_chars - (len(card_name) + len(card_mana_cost)))
+        title_line_padding = " " * title_line_spaces
         printer.text(f"{card_name}{title_line_padding}{card_mana_cost}\n")
 
         # ART
         printer.set(align='center', bold=False)
-        if self.card_art_enabled:
-            printer.text(f"\n")
+        if self.card_art_enabled and card_art_path and os.path.exists(card_art_path):
+            printer.text("\n")
             printer.image(card_art_path)
-            printer.text(f"\n")
+            printer.text("\n")
 
         # TYPE LINE
-        printer.text(f"\n{card_type_line}\n\n")
+        if card_type_line:
+            printer.text(f"\n{card_type_line}\n\n")
 
         # ORACLE TEXT
-        printer.set(align='left', bold=False)
-        for paragraph in card_oracle_text.split('\n'):
-            if paragraph.strip():
-                wrapped = textwrap.fill(paragraph, width=self.paper_width_chars)
-                printer.text(wrapped + "\n\n")
-            else:
-                printer.text("\n")
+        if card_oracle_text:
+            printer.set(align='left', bold=False)
+            for paragraph in card_oracle_text.split('\n'):
+                if paragraph.strip():
+                    wrapped = textwrap.fill(paragraph, width=self.paper_width_chars)
+                    printer.text(wrapped + "\n\n")
+                else:
+                    printer.text("\n")
 
         # POWER / TOUGHNESS
-        printer.set(align='right', bold=False)
-        printer.text(f"{card_power} / {card_toughness}\n")
+        if card_power is not None and card_toughness is not None:
+            printer.set(align='right', bold=False)
+            printer.text(f"{card_power} / {card_toughness}\n")
 
         # QR CODE
         printer.set(align='center', bold=False)
-        if self.qr_code_enabled:
+        if self.qr_code_enabled and card_scryfall_uri:
             printer.qr(card_scryfall_uri, size=self.qr_code_size)
 
         printer.cut()
