@@ -22,7 +22,21 @@ Downloads card data from the [Scryfall API](https://scryfall.com/docs/api) and p
 ### Components
 
 - [Raspberry Pi 3 Model B+](https://www.raspberrypi.com/products/raspberry-pi-3-model-b-plus/)
-- ...
+- [Raspberry Pi 3 Case](https://a.co/d/0bsgVSjd)
+- [Maikrt MC206H Thermal Receipt Printer](https://a.co/d/06qIKsng)
+- [BuyRegisterRolls 57mm x 30mm Thermal Receipt Paper](https://a.co/d/00LGsMJn)
+- [MakerFocus 20200330-SD8V OLED Display](https://a.co/d/06Y7V5Uj)
+- [Assorted Jumper Wires](https://a.co/d/0evrCTOw)
+- [CASEMATIX Graded Card Case](https://a.co/d/0cv4oRv7)
+- [KY-040 Rotary Encoder Module](https://a.co/d/0hN4SBto)
+- [Twidec SPST KCD3-101 Rocker Switch](https://a.co/d/00npt3Dj)
+- [SHNITPWR 60W Universal Power Supply](https://a.co/d/0bKNzwey)
+- [DaierTek DC Barrel Jack](https://a.co/d/093TzIyP)
+- [Gebildet 12mm Momemtary Push Button](https://a.co/d/0gaiNBBG)
+- TODO: Momentary Push Button Switches (OBSF-30 or similar)
+- TODO: Voltage Step-Down	(LM2596 DC-DC Adjustable Buck Converter Module)
+- TODO: Logic Level Shifter	4-Channel Bidirectional Logic Level Converter (Adafruit BSS138 or TXB0108)
+- TODO: Mounting Hardware	(M2.5 Brass Standoffs, Screws, and Nuts Assortment)
 
 ### Pinout
 
