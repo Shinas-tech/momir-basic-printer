@@ -67,7 +67,106 @@ Downloads card data from the [Scryfall API](https://scryfall.com/docs/api), incl
 
 ### Pinout
 
-...
+```mermaid
+flowchart TB
+  subgraph IO["I/O"]
+    direction LR
+    subgraph OLEDS["OLED Displays"]
+      direction TB
+      subgraph OLED_B["OLED Display #2"]
+        direction LR
+        OLED_B1["SDA"]
+        OLED_B2["SCL"]
+        OLED_B3["VCC"]
+        OLED_B4["GND"]
+      end
+
+      subgraph OLED_A["OLED Display #1"]
+        direction LR
+        OLED_A1["SDA"]
+        OLED_A2["SCL"]
+        OLED_A3["VCC"]
+        OLED_A4["GND"]
+      end
+    end
+
+    subgraph TP["Thermal Printer"]
+      direction LR
+      subgraph PP["Power Port"]
+        direction TB
+        PP1["VCC"]
+        PP2["GND"]
+      end
+
+      subgraph USB["USB"]
+        direction TB
+        USB1["GND"]
+        USB2["D+"]
+        USB3["D-"]
+        USB4["5V"]
+      end
+
+      subgraph TTL["TTL"]
+        direction TB
+        TTL1["GND"]
+        TTL2["RX"]
+        TTL3["TX"]
+        TTL4["DTR"]
+      end
+    end
+  end
+
+  subgraph PI["Raspberry Pi 3B+ GPIO"]
+    direction TB
+    subgraph RIGHT["Right Column"]
+      direction LR
+      P2["2: 5V"]
+      P4["4: 5V"]
+      P6["6: GND"]
+      P8["8: GPIO14/TXD"]
+      P10["10: GPIO15/RXD"]
+      P12["12: GPIO18"]
+      P14["14: GND"]
+      P16["16: GPIO23"]
+      P18["18: GPIO24"]
+      P20["20: GND"]
+      P22["22: GPIO25"]
+      P24["24: GPIO8"]
+      P26["26: GPIO7"]
+      P28["28: GPIO1/ID_SC"]
+      P30["30: GND"]
+      P32["32: GPIO12"]
+      P34["34: GND"]
+      P36["36: GPIO16"]
+      P38["38: GPIO20"]
+      P40["40: GPIO21"]
+    end
+
+    subgraph LEFT["Left Column"]
+      direction LR
+      P1["1: 3.3V"]
+      P3["3: GPIO2/SDA"]
+      P5["5: GPIO3/SCL"]
+      P7["7: GPIO4"]
+      P9["9: GND"]
+      P11["11: GPIO17"]
+      P13["13: GPIO27"]
+      P15["15: GPIO22"]
+      P17["17: 3.3V"]
+      P19["19: GPIO10"]
+      P21["21: GPIO9"]
+      P23["23: GPIO11"]
+      P25["25: GND"]
+      P27["27: GPIO0/ID_SD"]
+      P29["29: GPIO5"]
+      P31["31: GPIO6"]
+      P33["33: GPIO13"]
+      P35["35: GPIO19"]
+      P37["37: GPIO26"]
+      P39["39: GND"]
+    end
+  end
+```
 
 ## Installation
 
