@@ -7,7 +7,7 @@ Momir Basic Printer (MBP) is a set of Python scripts designed to run headless on
 
 ## TODO
 
-- [ ] Update Scryfall refresh to only download new cards instead of re-downloading the entire database every time
+- [x] Update Scryfall refresh to only download new cards instead of re-downloading the entire database every time
 - [ ] Document configuration in README
 - [ ] Enhance CLI for better user experience and error handling
 - [ ] Add thermal printer integration
