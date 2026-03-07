@@ -43,27 +43,16 @@ Downloads card data from the [Scryfall API](https://scryfall.com/docs/api), incl
 ### Components
 
 - [Raspberry Pi 3 Model B+](https://www.raspberrypi.com/products/raspberry-pi-3-model-b-plus/)
-- [Raspberry Pi 3 Case](https://a.co/d/0bsgVSjd)
+- [Adafruit T-Cobbler Plus GPIO Breakout](https://a.co/d/0fnKGt3A)
 - [Maikrt MC206H Thermal Printer](https://a.co/d/06qIKsng)
 - [PAPRMA 57mm x 30mm Thermal Paper](https://a.co/d/04u2Gb2j)
 - [MakerFocus 20200330-SD8V OLED Display](https://a.co/d/06Y7V5Uj)
-- [CASEMATIX Graded Card Case](https://a.co/d/0cv4oRv7)
 - [KY-040 Rotary Encoder Module](https://a.co/d/0hN4SBto)
-- [Twidec SPST KCD3-101 Rocker Switch](https://a.co/d/00npt3Dj)
+- [Nilight 12V 20A SPST Rocker Toggle Switch](https://a.co/d/02VcvtcQ)
+- [EG STARTS 24mm Arcade Push Buttons](https://a.co/d/0jlW1BSk)
 - [SHNITPWR 60W Universal Power Supply](https://a.co/d/0bKNzwey)
-- [DaierTek DC Barrel Jack](https://a.co/d/093TzIyP)
-- [Gebildet 12mm Momemtary Push Button](https://a.co/d/0gaiNBBG)
 - [LM2596 Buck Converter](https://a.co/d/070NjEDp)
 - [KeeYees 4 Channel IIC I2C Logic Level Converter](https://a.co/d/0ecOK7n6)
-- [Gebildet E317 12mm Momentary Push Buttons](https://a.co/d/07jTpQPD)
-- [HELIFOUNER M2.5 Brass Assortment](https://a.co/d/0a2iHqBy)
-- [Assorted Jumper Wires](https://a.co/d/0evrCTOw)
-- [TUOFENG 22 AWG Insulated Stranded Wire](https://a.co/d/09Vqd8gC)
-- [Haerkn 18 AWG Stranded Electrical Wire](https://a.co/d/0aUYpeb8)
-- [ELEGOO Double Sided PCB Boards](https://a.co/d/0dti0gKG)
-- [REXQualis Breadboards](https://a.co/d/08CaHxEp)
-- [Eventronic Polyolefin 3:1 Ratio Heat Shrink Tubing](https://a.co/d/0cmdWnoi)
-- [Adafruit T-Cobbler Plus GPIO Breakout](https://a.co/d/0fnKGt3A)
 
 ### Pinout
 
