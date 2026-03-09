@@ -7,13 +7,11 @@ Momir Basic Printer (MBP) is a set of Python scripts designed to run headless on
 
 ## TODO
 
-- [ ] Update Scryfall refresh to only download new cards instead of re-downloading the entire database every time
-- [ ] Document configuration in README
-- [ ] Enhance CLI for better user experience and error handling
-- [ ] Add thermal printer integration
-- [ ] Add OLED display integration
-- [ ] Add rotary encoder and button input
-- [ ] Create pinout diagram
+- [ ] Implement button input
+- [ ] Implement rotary encoder input
+- [ ] Implement OLED display output
+- [ ] Implement thermal printer integration
+- [ ] Add completed hardware photos to [README.md](README.md)
 
 ## Table of Contents
 
@@ -21,7 +19,7 @@ Momir Basic Printer (MBP) is a set of Python scripts designed to run headless on
 - [Examples](#examples)
 - [Hardware](#hardware)
   - [Components](#components)
-  - [Pinout](#pinout)
+  - [Diagram](#diagram)
 - [Installation](#installation)
 - [Configuration](#configuration)
 - [Service Management](#service-management)
@@ -43,130 +41,20 @@ Downloads card data from the [Scryfall API](https://scryfall.com/docs/api), incl
 ### Components
 
 - [Raspberry Pi 3 Model B+](https://www.raspberrypi.com/products/raspberry-pi-3-model-b-plus/)
-- [Raspberry Pi 3 Case](https://a.co/d/0bsgVSjd)
+- [Adafruit T-Cobbler Plus GPIO Breakout](https://a.co/d/0fnKGt3A)
 - [Maikrt MC206H Thermal Printer](https://a.co/d/06qIKsng)
 - [PAPRMA 57mm x 30mm Thermal Paper](https://a.co/d/04u2Gb2j)
 - [MakerFocus 20200330-SD8V OLED Display](https://a.co/d/06Y7V5Uj)
-- [CASEMATIX Graded Card Case](https://a.co/d/0cv4oRv7)
 - [KY-040 Rotary Encoder Module](https://a.co/d/0hN4SBto)
-- [Twidec SPST KCD3-101 Rocker Switch](https://a.co/d/00npt3Dj)
+- [Nilight 12V 20A SPST Rocker Toggle Switch](https://a.co/d/02VcvtcQ)
+- [EG STARTS 24mm Arcade Push Buttons](https://a.co/d/0jlW1BSk)
 - [SHNITPWR 60W Universal Power Supply](https://a.co/d/0bKNzwey)
-- [DaierTek DC Barrel Jack](https://a.co/d/093TzIyP)
-- [Gebildet 12mm Momemtary Push Button](https://a.co/d/0gaiNBBG)
 - [LM2596 Buck Converter](https://a.co/d/070NjEDp)
 - [KeeYees 4 Channel IIC I2C Logic Level Converter](https://a.co/d/0ecOK7n6)
-- [Gebildet E317 12mm Momentary Push Buttons](https://a.co/d/07jTpQPD)
-- [HELIFOUNER M2.5 Brass Assortment](https://a.co/d/0a2iHqBy)
-- [Assorted Jumper Wires](https://a.co/d/0evrCTOw)
-- [TUOFENG 22 AWG Insulated Stranded Wire](https://a.co/d/09Vqd8gC)
-- [Haerkn 18 AWG Stranded Electrical Wire](https://a.co/d/0aUYpeb8)
-- [ELEGOO Double Sided PCB Boards](https://a.co/d/0dti0gKG)
-- [REXQualis Breadboards](https://a.co/d/08CaHxEp)
-- [Eventronic Polyolefin 3:1 Ratio Heat Shrink Tubing](https://a.co/d/0cmdWnoi)
-- [Adafruit T-Cobbler Plus GPIO Breakout](https://a.co/d/0fnKGt3A)
 
-### Pinout
+### Diagram
 
-```mermaid
-flowchart TB
-  subgraph IO["I/O"]
-    direction LR
-    subgraph OLEDS["OLED Displays"]
-      direction TB
-      subgraph OLED_B["OLED Display #2"]
-        direction LR
-        OLED_B1["SDA"]
-        OLED_B2["SCL"]
-        OLED_B3["VCC"]
-        OLED_B4["GND"]
-      end
-
-      subgraph OLED_A["OLED Display #1"]
-        direction LR
-        OLED_A1["SDA"]
-        OLED_A2["SCL"]
-        OLED_A3["VCC"]
-        OLED_A4["GND"]
-      end
-    end
-
-    subgraph TP["Thermal Printer"]
-      direction LR
-      subgraph PP["Power Port"]
-        direction TB
-        PP1["VCC"]
-        PP2["GND"]
-      end
-
-      subgraph USB["USB"]
-        direction TB
-        USB1["GND"]
-        USB2["D+"]
-        USB3["D-"]
-        USB4["5V"]
-      end
-
-      subgraph TTL["TTL"]
-        direction TB
-        TTL1["GND"]
-        TTL2["RX"]
-        TTL3["TX"]
-        TTL4["DTR"]
-      end
-    end
-  end
-
-  subgraph PI["Raspberry Pi 3B+ GPIO"]
-    direction TB
-    subgraph RIGHT["Right Column"]
-      direction LR
-      P2["2: 5V"]
-      P4["4: 5V"]
-      P6["6: GND"]
-      P8["8: GPIO14/TXD"]
-      P10["10: GPIO15/RXD"]
-      P12["12: GPIO18"]
-      P14["14: GND"]
-      P16["16: GPIO23"]
-      P18["18: GPIO24"]
-      P20["20: GND"]
-      P22["22: GPIO25"]
-      P24["24: GPIO8"]
-      P26["26: GPIO7"]
-      P28["28: GPIO1/ID_SC"]
-      P30["30: GND"]
-      P32["32: GPIO12"]
-      P34["34: GND"]
-      P36["36: GPIO16"]
-      P38["38: GPIO20"]
-      P40["40: GPIO21"]
-    end
-
-    subgraph LEFT["Left Column"]
-      direction LR
-      P1["1: 3.3V"]
-      P3["3: GPIO2/SDA"]
-      P5["5: GPIO3/SCL"]
-      P7["7: GPIO4"]
-      P9["9: GND"]
-      P11["11: GPIO17"]
-      P13["13: GPIO27"]
-      P15["15: GPIO22"]
-      P17["17: 3.3V"]
-      P19["19: GPIO10"]
-      P21["21: GPIO9"]
-      P23["23: GPIO11"]
-      P25["25: GND"]
-      P27["27: GPIO0/ID_SD"]
-      P29["29: GPIO5"]
-      P31["31: GPIO6"]
-      P33["33: GPIO13"]
-      P35["35: GPIO19"]
-      P37["37: GPIO26"]
-      P39["39: GND"]
-    end
-  end
-```
+![Hardware Diagram](img/hardware_diagram.jpg)
 
 ## Installation
 
@@ -197,32 +85,35 @@ chmod +x setup.sh
 
 All configuration variables are stored in [src/config.ini](src/config.ini). Update the values in this file to match your specific hardware setup and preferences. After making changes to the configuration, restart the service for the changes to take effect.
 
-| **Section**  | **Variable**             | **Type** | **Description** |
-| ------------ | ------------------------ | -------- | --------------- |
-| `FILESYSTEM` | `cards_path`             | ...      | ...             |
-| `FILESYSTEM` | `art_path`               | ...      | ...             |
-| `FILESYSTEM` | `default_card_art_path`  | ...      | ...             |
-| `FILESYSTEM` | `access_rights`          | ...      | ...             |
-| `LOGGING`    | `log_level`              | ...      | ...             |
-| `LOGGING`    | `log_format`             | ...      | ...             |
-| `PRINTER`    | `paper_width_mm`         | ...      | ...             |
-| `PRINTER`    | `paper_width_chars`      | ...      | ...             |
-| `PRINTER`    | `card_art_enabled`       | ...      | ...             |
-| `PRINTER`    | `qr_code_enabled`        | ...      | ...             |
-| `PRINTER`    | `qr_code_size`           | ...      | ...             |
-| `PRINTER`    | `dpi`                    | ...      | ...             |
-| `PRINTER`    | `vendor_id`              | ...      | ...             |
-| `PRINTER`    | `product_id`             | ...      | ...             |
-| `SCRYFALL`   | `base_url`               | ...      | ...             |
-| `SCRYFALL`   | `bulk_data_endpoint`     | ...      | ...             |
-| `SCRYFALL`   | `header_accept`          | ...      | ...             |
-| `SCRYFALL`   | `header_user_agent`      | ...      | ...             |
-| `SCRYFALL`   | `header_accept_encoding` | ...      | ...             |
-| `SCRYFALL`   | `request_delay_seconds`  | ...      | ...             |
-| `SCRYFALL`   | `max_retries`            | ...      | ...             |
-| `SCRYFALL`   | `art_width_px`           | ...      | ...             |
-| `SCRYFALL`   | `excluded_sets`          | ...      | ...             |
-| `SCRYFALL`   | `excluded_layouts`       | ...      | ...             |
+| **Section**  | **Variable**             | **Type**  | **Description**                                                           |
+| ------------ | ------------------------ | --------- | ------------------------------------------------------------------------- |
+| `FILESYSTEM` | `cards_path`             | `string`  | Directory path where card JSON files are stored                           |
+| `FILESYSTEM` | `art_path`               | `string`  | Directory path where card artwork images are stored                       |
+| `FILESYSTEM` | `default_card_art_path`  | `string`  | File path to default placeholder image for cards without artwork          |
+| `FILESYSTEM` | `access_rights`          | `octal`   | File system permissions for created directories (octal notation)          |
+| `LOGGING`    | `log_level`              | `string`  | Logging verbosity level (`DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`) |
+| `LOGGING`    | `log_format`             | `string`  | Format string for log messages                                            |
+| `LOGGING`    | `log_date_format`        | `string`  | Format string for timestamps in log messages                              |
+| `PRINTER`    | `paper_width_mm`         | `integer` | Physical width of thermal paper in millimeters                            |
+| `PRINTER`    | `paper_width_chars`      | `integer` | Maximum number of characters per line for text wrapping                   |
+| `PRINTER`    | `card_art_enabled`       | `boolean` | Whether to print card artwork images on receipts                          |
+| `PRINTER`    | `qr_code_enabled`        | `boolean` | Whether to print QR codes linking to Scryfall card details                |
+| `PRINTER`    | `qr_code_size`           | `integer` | Size of QR code in printer units (larger = bigger QR code)                |
+| `PRINTER`    | `dpi`                    | `integer` | Printer resolution in dots per inch for image rendering                   |
+| `PRINTER`    | `vendor_id`              | `hex`     | USB vendor ID for the thermal printer device                              |
+| `PRINTER`    | `product_id`             | `hex`     | USB product ID for the thermal printer device                             |
+| `PRINTER`    | `printer_profile`        | `string`  | ESC/POS printer profile name for compatibility                            |
+| `PRINTER`    | `printer_media_width_px` | `integer` | Media width in pixels for image processing and scaling                    |
+| `SCRYFALL`   | `base_url`               | `string`  | Base URL for Scryfall API requests                                        |
+| `SCRYFALL`   | `bulk_data_endpoint`     | `string`  | API endpoint path for bulk card data download                             |
+| `SCRYFALL`   | `header_accept`          | `string`  | HTTP Accept header value for API content negotiation                      |
+| `SCRYFALL`   | `header_user_agent`      | `string`  | HTTP User-Agent header identifying the client application                 |
+| `SCRYFALL`   | `header_accept_encoding` | `string`  | HTTP Accept-Encoding header for compression support                       |
+| `SCRYFALL`   | `request_delay_seconds`  | `float`   | Delay between consecutive API requests to respect rate limits             |
+| `SCRYFALL`   | `max_retries`            | `integer` | Maximum number of retry attempts for failed API requests                  |
+| `SCRYFALL`   | `art_width_px`           | `integer` | Target width in pixels for downloaded card artwork                        |
+| `SCRYFALL`   | `excluded_sets`          | `list`    | Comma-separated card sets to exclude (e.g., `funny`, `memorabilia`)       |
+| `SCRYFALL`   | `excluded_layouts`       | `list`    | Comma-separated card layouts to exclude (e.g., `token`, `emblem`)         |
 
 ## Service Management
 
