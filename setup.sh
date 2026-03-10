@@ -22,6 +22,21 @@ sudo apt-get update -qq
 sudo apt-get install -y python3-venv python3-pip libjpeg-dev zlib1g-dev
 
 echo "========================================"
+echo "Configuring Raspberry Pi Hardware..."
+echo "========================================"
+echo "Enabling I2C bus..."
+sudo raspi-config nonint do_i2c 0
+
+echo "Disabling Serial Login Console..."
+sudo raspi-config nonint do_serial_cons 1
+
+echo "Enabling Serial Hardware Port..."
+sudo raspi-config nonint do_serial_hw 0
+
+echo "Granting hardware permissions to $USER_NAME..."
+sudo usermod -a -G i2c,dialout "$USER_NAME"
+
+echo "========================================"
 echo "Setting up application environment..."
 echo "========================================"
 cd "$APP_DIR"
@@ -60,9 +75,14 @@ echo "Enabling $SERVICE_NAME to start on boot..."
 sudo systemctl enable "$SERVICE_NAME"
 
 echo "Restarting $SERVICE_NAME to apply any changes..."
-sudo systemctl restart "$SERVICE_NAME"
+sudo systemctl restart "$SERVICE_NAME" || true
 
 echo "========================================"
-echo "Setup complete! Current service status:"
+echo "Setup complete! A reboot is required to apply hardware changes."
 echo "========================================"
-sudo systemctl status "$SERVICE_NAME" --no-pager
+read -p "Would you like to reboot now? (y/N) " -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+    sudo reboot
+fi
