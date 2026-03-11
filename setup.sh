@@ -19,7 +19,7 @@ echo "========================================"
 echo "Updating system and checking packages..."
 echo "========================================"
 sudo apt-get update -qq
-sudo apt-get install -y python3-venv python3-pip libjpeg-dev zlib1g-dev
+sudo apt-get install -y python3-venv python3-pip libjpeg-dev zlib1g-dev i2c-tools fonts-dejavu
 
 echo "========================================"
 echo "Configuring Raspberry Pi Hardware..."
@@ -45,7 +45,11 @@ echo "Creating virtual environment..."
 python3 -m venv .venv
 
 echo "Installing Python requirements..."
-.venv/bin/pip install -r requirements.txt
+if [ -f "requirements.txt" ]; then
+    .venv/bin/pip install -r requirements.txt
+else
+    echo "No requirements.txt found. Skipping package installation."
+fi
 
 echo "========================================"
 echo "Configuring systemd service..."
