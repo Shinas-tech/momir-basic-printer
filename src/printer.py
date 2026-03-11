@@ -319,12 +319,22 @@ class Printer:
             # NAME AND MANA COST
             self._wait_for_dtr(cancel_event=cancel_event)
             printer.set(align='left', bold=True)
-            title_line_spaces = max(
-                self._min_title_spacing,
-                self.paper_width_chars - (len(card_name) + len(card_mana_cost))
-            )
-            title_line_padding = " " * title_line_spaces
-            printer.text(f"{card_name}{title_line_padding}{card_mana_cost}\n")
+            combined_len = len(card_name) + self._min_title_spacing + len(card_mana_cost)
+            if combined_len > self.paper_width_chars:
+                # Too long for one line: print name and mana cost on separate lines
+                wrapped_name = textwrap.fill(
+                    card_name, width=self.paper_width_chars, break_long_words=True)
+                printer.text(f"{wrapped_name}\n")
+                if card_mana_cost:
+                    printer.set(align='right', bold=True)
+                    printer.text(f"{card_mana_cost}\n")
+            else:
+                title_line_spaces = max(
+                    self._min_title_spacing,
+                    self.paper_width_chars - (len(card_name) + len(card_mana_cost))
+                )
+                title_line_padding = " " * title_line_spaces
+                printer.text(f"{card_name}{title_line_padding}{card_mana_cost}\n")
 
             # ART
             printer.set(align='center', bold=False)
