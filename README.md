@@ -97,10 +97,11 @@ All configuration variables are stored in [src/config.ini](src/config.ini). Upda
 | `APP`        | `cancelled_status`              | `string`  | Status string shown when active work is cancelled                                      |
 | `APP`        | `error_status`                  | `string`  | Status string shown when fetch/print fails                                             |
 | `APP`        | `reset_status`                  | `string`  | Status string shown after long-press reset                                             |
+| `APP`        | `done_status`                   | `string`  | Status string shown briefly after a successful print completes                         |
+| `APP`        | `done_status_seconds`           | `float`   | Duration in seconds to show `done_status` before returning to ready state              |
 | `APP`        | `services_unavailable_status`   | `string`  | Status string shown when printer/Scryfall services are unavailable                     |
 | `APP`        | `no_cmc_status_template`        | `string`  | Template used when no card exists for selected CMC (supports `{cmc}`)                  |
 | `APP`        | `shutdown_join_timeout_seconds` | `float`   | Max wait time for worker thread during shutdown                                        |
-| `APP`        | `printed_status_name_max_len`   | `integer` | Maximum card-name length shown on status line after printing                           |
 | `FILESYSTEM` | `cards_path`                    | `string`  | Directory path where card JSON files are stored                                        |
 | `FILESYSTEM` | `art_path`                      | `string`  | Directory path where card artwork images are stored                                    |
 | `FILESYSTEM` | `default_card_art_path`         | `string`  | File path to default placeholder image for cards without artwork                       |
