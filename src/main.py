@@ -13,6 +13,7 @@ import logging
 import signal
 import sys
 import threading
+import time
 from pathlib import Path
 from typing import Any, Optional
 
@@ -81,7 +82,7 @@ class MomirApp:
         self.display: Optional[Any] = None
 
         # Hardware inputs
-        hold_time: float = hardware_config.getfloat('hold_time', fallback=1.5)
+        hold_time: float = hardware_config.getfloat('hold_time', fallback=1.0)
         enc_clk: int = hardware_config.getint('gpio_encoder_clk')
         enc_dt: int = hardware_config.getint('gpio_encoder_dt')
         enc_sw: int = hardware_config.getint('gpio_encoder_sw')
@@ -120,18 +121,22 @@ class MomirApp:
         self._reset_status: str = app_config.get('reset_status', fallback='Reset')
         self._services_unavailable_status: str = app_config.get(
             'services_unavailable_status', fallback='Services N/A')
+        self._done_status: str = app_config.get('done_status', fallback='Done!')
+        self._done_status_seconds: float = app_config.getfloat(
+            'done_status_seconds', fallback=2.0)
         self._no_cmc_status_template: str = app_config.get(
             'no_cmc_status_template', fallback='No CMC {cmc}')
         self._shutdown_join_timeout_seconds: float = app_config.getfloat(
             'shutdown_join_timeout_seconds', fallback=5)
-        self._printed_status_name_max_len: int = app_config.getint(
-            'printed_status_name_max_len', fallback=20)
 
     def _cmc_to_encoder_steps(self, cmc: int) -> int:
         return cmc - self._encoder_step_offset
 
     def _encoder_steps_to_cmc(self, steps: int) -> int:
         return steps + self._encoder_step_offset
+
+    def _clamp_cmc(self, cmc: int) -> int:
+        return max(self._cmc_min, min(cmc, self._cmc_max))
 
     # ------------------------------------------------------------------
     # Initialization
@@ -200,7 +205,10 @@ class MomirApp:
     # ------------------------------------------------------------------
 
     def _on_rotate(self) -> None:
-        cmc = self._encoder_steps_to_cmc(self._encoder.steps)
+        cmc = self._clamp_cmc(self._encoder_steps_to_cmc(self._encoder.steps))
+        clamped_steps = self._cmc_to_encoder_steps(cmc)
+        if self._encoder.steps != clamped_steps:
+            self._encoder.steps = clamped_steps
         self._cmc = cmc
         if self.display is not None:
             self.display.set_cmc(cmc)
@@ -282,7 +290,10 @@ class MomirApp:
                 logger.info(f"Printing cancelled: {card_name}")
                 return
 
-            self._set_status(card_name[:self._printed_status_name_max_len])
+            self._set_status(self._done_status)
+            if self._done_status_seconds > 0:
+                time.sleep(self._done_status_seconds)
+            self._set_status(self._ready_status)
             logger.info(f"Printed: {card_name}")
 
         except Exception as exc:
