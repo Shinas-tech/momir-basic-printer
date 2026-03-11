@@ -85,8 +85,13 @@ class MomirApp:
         enc_dt: int = hardware_config.getint('gpio_encoder_dt')
         enc_sw: int = hardware_config.getint('gpio_encoder_sw')
 
-        self._encoder = RotaryEncoder(enc_clk, enc_dt, wrap=False,
-                                       max_steps=self._cmc_max)
+        self._encoder = RotaryEncoder(
+            enc_clk,
+            enc_dt,
+            wrap=True,
+            min_steps=self._cmc_min,
+            max_steps=self._cmc_max,
+        )
         self._encoder.steps = self._cmc_min
 
         self._button = Button(enc_sw, pull_up=True, hold_time=hold_time)
@@ -177,9 +182,7 @@ class MomirApp:
     # ------------------------------------------------------------------
 
     def _on_rotate(self) -> None:
-        steps = self._encoder.steps
-        cmc = max(self._cmc_min, min(self._cmc_max, steps))
-        self._encoder.steps = cmc  # clamp
+        cmc = self._encoder.steps
         self._cmc = cmc
         if self.display is not None:
             self.display.set_cmc(cmc)

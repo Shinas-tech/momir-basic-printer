@@ -36,6 +36,10 @@ class DisplayManager:
             'display_font_status_path',
             fallback='/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',
         )
+        self._cmc_min: int = hardware_config.getint('cmc_min', fallback=0)
+        self._cmc_max: int = hardware_config.getint('cmc_max', fallback=16)
+        self._padding_x: int = hardware_config.getint('display_padding_x', fallback=2)
+        self._cmc_value_gap: int = hardware_config.getint('display_cmc_value_gap', fallback=6)
 
         serial = i2c(port=i2c_port, address=i2c_address)
         self._device = ssd1306(serial, width=self.width, height=self.height)
@@ -51,6 +55,8 @@ class DisplayManager:
         except OSError:
             self._font_cmc = ImageFont.load_default()
             self._font_status = ImageFont.load_default()
+
+        self._fit_cmc_font_to_screen()
 
         self._render()
 
@@ -81,6 +87,62 @@ class DisplayManager:
     def cleanup(self) -> None:
         self._device.cleanup()
 
+    def _text_size(self, draw: ImageDraw.ImageDraw, text: str, font: ImageFont.ImageFont) -> tuple[int, int]:
+        bbox = draw.textbbox((0, 0), text, font=font)
+        return bbox[2] - bbox[0], bbox[3] - bbox[1]
+
+    def _fit_cmc_font_to_screen(self) -> None:
+        """Reduce CMC font size until the widest expected CMC label fits the top region."""
+        sample_img = Image.new("1", (1, 1), 0)
+        sample_draw = ImageDraw.Draw(sample_img)
+
+        sample_value = str(max(abs(self._cmc_min), abs(self._cmc_max)))
+        available_width = max(1, self.width - (2 * self._padding_x))
+        sep_y = self._status_y_offset - 4
+        available_height = max(1, sep_y - 2)
+
+        for size in range(self._font_size_cmc, 7, -1):
+            try:
+                test_font = ImageFont.truetype(self._font_cmc_path, size)
+            except OSError:
+                return
+
+            prefix_w, prefix_h = self._text_size(sample_draw, self._cmc_prefix, test_font)
+            value_w, value_h = self._text_size(sample_draw, sample_value, test_font)
+            total_w = prefix_w + self._cmc_value_gap + value_w
+            total_h = max(prefix_h, value_h)
+            if total_w <= available_width and total_h <= available_height:
+                self._font_cmc = test_font
+                return
+
+    def _truncate_to_width(
+        self,
+        draw: ImageDraw.ImageDraw,
+        text: str,
+        font: ImageFont.ImageFont,
+        max_width: int,
+    ) -> str:
+        if max_width <= 0:
+            return ""
+
+        text_w, _ = self._text_size(draw, text, font)
+        if text_w <= max_width:
+            return text
+
+        ellipsis = "..."
+        ellipsis_w, _ = self._text_size(draw, ellipsis, font)
+        if ellipsis_w > max_width:
+            return ""
+
+        candidate = text
+        while candidate:
+            candidate = candidate[:-1]
+            candidate_w, _ = self._text_size(draw, candidate, font)
+            if candidate_w + ellipsis_w <= max_width:
+                return candidate + ellipsis
+
+        return ""
+
     def _render(self) -> None:
         with self._lock:
             cmc = self._cmc
@@ -90,17 +152,29 @@ class DisplayManager:
         draw = ImageDraw.Draw(img)
 
         # --- CMC region (top) ---
-        cmc_text = f"{self._cmc_prefix} {cmc}"
-        bbox = draw.textbbox((0, 0), cmc_text, font=self._font_cmc)
-        text_w = bbox[2] - bbox[0]
-        x = (self.width - text_w) // 2
-        draw.text((x, 2), cmc_text, fill=1, font=self._font_cmc)
+        prefix_text = self._cmc_prefix
+        value_text = str(cmc)
+        sep_y = self._status_y_offset - 4
+
+        prefix_w, prefix_h = self._text_size(draw, prefix_text, self._font_cmc)
+        value_w, value_h = self._text_size(draw, value_text, self._font_cmc)
+        line_h = max(prefix_h, value_h)
+        top_region_height = max(1, sep_y - 1)
+        y = max(0, (top_region_height - line_h) // 2)
+
+        total_w = prefix_w + self._cmc_value_gap + value_w
+        available_w = self.width - (2 * self._padding_x)
+        x_start = self._padding_x + max(0, (available_w - total_w) // 2)
+
+        draw.text((x_start, y), prefix_text, fill=1, font=self._font_cmc)
+        draw.text((x_start + prefix_w + self._cmc_value_gap, y), value_text, fill=1, font=self._font_cmc)
 
         # --- Separator line ---
-        sep_y = self._status_y_offset - 4
         draw.line([(0, sep_y), (self.width, sep_y)], fill=1)
 
         # --- Status region (bottom) ---
-        draw.text((2, self._status_y_offset), status, fill=1, font=self._font_status)
+        available_status_w = self.width - (2 * self._padding_x)
+        status_text = self._truncate_to_width(draw, status, self._font_status, available_status_w)
+        draw.text((self._padding_x, self._status_y_offset), status_text, fill=1, font=self._font_status)
 
         self._device.display(img)

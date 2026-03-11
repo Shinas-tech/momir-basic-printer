@@ -326,7 +326,16 @@ class Printer:
             # TYPE LINE
             if card_type_line:
                 self._wait_for_dtr(cancel_event=cancel_event)
-                printer.text(f"\n{card_type_line}\n\n")
+                if len(card_type_line) > self.paper_width_chars and "-" in card_type_line:
+                    type_prefix, type_suffix = card_type_line.split("-", 1)
+                    type_prefix = type_prefix.rstrip()
+                    type_suffix = type_suffix.lstrip()
+                    if type_prefix and type_suffix:
+                        printer.text(f"{type_prefix}\n{type_suffix}\n\n")
+                    else:
+                        printer.text(f"{card_type_line}\n\n")
+                else:
+                    printer.text(f"{card_type_line}\n\n")
 
             # ORACLE TEXT
             if card_oracle_text:
@@ -344,7 +353,7 @@ class Printer:
             if card_power is not None and card_toughness is not None:
                 self._wait_for_dtr(cancel_event=cancel_event)
                 printer.set(align='right', bold=False)
-                printer.text(f"{card_power} / {card_toughness}\n")
+                printer.text(f"{card_power} / {card_toughness}")
 
             printer.cut()
             logger.info(f"Successfully printed: {card_name}")
